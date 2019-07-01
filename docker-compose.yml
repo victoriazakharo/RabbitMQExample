@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+
+  worker:
+    image: worker:v1
+    build:
+      context: Worker
+    depends_on:
+      - rabbitmq
+    tty: true
+
+  sender:
+    image: sender:v1
+    build:
+      context: .
+      dockerfile: Sender/Dockerfile
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8080:80"
